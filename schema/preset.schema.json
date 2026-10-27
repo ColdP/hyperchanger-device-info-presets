@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ColdP/hyperchanger-device-info-presets/main/schema/preset.schema.json",
+  "title": "HyperChanger device preset",
+  "description": "Schema for an installable HyperChanger device information preset.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "metadata", "parameters"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Path or URL of the schema used by this file."
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "description", "schema_version"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "description": "Stable preset identifier and index lookup key."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable preset name."
+        },
+        "description": {
+          "type": "string",
+          "description": "Short explanation of the preset."
+        },
+        "schema_version": {
+          "type": "string",
+          "const": "1.0",
+          "description": "Version of the preset data format."
+        }
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model",
+        "processor",
+        "ram",
+        "battery",
+        "screen_size",
+        "resolution",
+        "device_detail_model",
+        "device_detail_processor",
+        "camera",
+        "os_version",
+        "android_version",
+        "storage",
+        "kernel",
+        "baseband",
+        "hardware",
+        "camera_rear",
+        "camera_front"
+      ],
+      "properties": {
+        "model": { "type": "string" },
+        "processor": { "type": "string" },
+        "ram": { "type": "string" },
+        "battery": { "type": "string" },
+        "screen_size": { "type": "string" },
+        "resolution": { "type": "string" },
+        "device_detail_model": { "type": "string" },
+        "device_detail_processor": { "type": "string" },
+        "camera": { "type": "string" },
+        "os_version": { "type": "string" },
+        "android_version": { "type": "string" },
+        "storage": { "type": "string" },
+        "kernel": { "type": "string" },
+        "baseband": { "type": "string" },
+        "hardware": { "type": "string" },
+        "camera_rear": { "type": "string" },
+        "camera_front": { "type": "string" }
+      },
+      "description": "All values are strings. An empty string means the value was not provided; HyperChanger must skip it."
+    }
+  }
+}

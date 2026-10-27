@@ -1,0 +1,2 @@
+# Local validation and the submission Bot; no application runtime dependencies.
+jsonschema==4.26.0

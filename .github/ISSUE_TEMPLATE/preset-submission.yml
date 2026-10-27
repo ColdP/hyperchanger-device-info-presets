@@ -1,0 +1,21 @@
+name: 手机参数预设投稿
+description: 提交完整的预设 JSON，由 Bot 校验后交给维护者审核。
+title: "[预设投稿] "
+labels: [preset-submission]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请先阅读 README.md 和 example.json。请使用已确认的参数，未知参数填空字符串。
+        保留全部 17 个 parameters 字段；元数据单独放在 metadata。
+        正式预设的 $schema 必须是 ../schema/preset.schema.json。
+        投稿需要登录 GitHub；通过校验并不代表预设已被采纳。
+  - type: textarea
+    id: preset-json
+    attributes:
+      label: 预设 JSON
+      description: 粘贴完整 JSON 对象，不要添加说明文字或 Markdown 代码围栏。
+      render: json
+      placeholder: 在这里粘贴根据 example.json 填写的完整 JSON
+    validations:
+      required: true

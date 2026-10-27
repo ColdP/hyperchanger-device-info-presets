@@ -1,0 +1,28 @@
+{
+  "$schema": "schema/preset.schema.json",
+  "metadata": {
+    "id": "example",
+    "name": "Example preset",
+    "description": "A complete example with every supported parameter left empty.",
+    "schema_version": "1.0"
+  },
+  "parameters": {
+    "model": "",
+    "processor": "",
+    "ram": "",
+    "battery": "",
+    "screen_size": "",
+    "resolution": "",
+    "device_detail_model": "",
+    "device_detail_processor": "",
+    "camera": "",
+    "os_version": "",
+    "android_version": "",
+    "storage": "",
+    "kernel": "",
+    "baseband": "",
+    "hardware": "",
+    "camera_rear": "",
+    "camera_front": ""
+  }
+}
