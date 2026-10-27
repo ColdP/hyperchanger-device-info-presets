@@ -4,8 +4,8 @@
 
 ## 文件与格式
 
-- `presets/<id>.json`：正式可应用的设备预设，目前包含 `xiaomi-18-pro.json`。
-- [`example.json`](example.json)：含全部 17 个参数字段的空白模板，不加入正式列表。
+- `presets/<id>.json`：正式可应用的设备预设，目前包含 `xiaomi-18-pro.json` 和 `xiaomi-17-pro-fix.json`。
+- [`example.json`](example.json)：含全部 17 个参数字段的空白投稿模板；贡献者信息由 Bot 生成，不应填写在投稿 JSON 中。
 - [`index.json`](index.json)：正式预设列表，含格式版本及每个预设的 `id`、`name`、`description`、`file`。
 - [`schema/preset.schema.json`](schema/preset.schema.json)：JSON Schema Draft 2020-12，检查预设结构及字段类型。
 - [`scripts/validate.py`](scripts/validate.py)：本地校验入口。
@@ -19,11 +19,15 @@
 | `metadata.name` | 预设显示名称 |
 | `metadata.description` | 预设说明，与手机参数分开存储 |
 | `metadata.schema_version` | 字符串 `"1.0"`，表示预设格式版本 |
+| `metadata.contributor` | 正式预设中的 GitHub 投稿者用户名，由 Bot 从 Issue 作者资料写入 |
+| `metadata.contributor_url` | 正式预设中的 GitHub 主页链接，由 Bot 从 Issue 作者资料写入 |
 | `parameters` | 下表中全部 17 个存储 Key，值一律为字符串 |
 
 **空字符串 `""` 表示该参数未提供。HyperChanger 应跳过该字段，保留用户已有设置，绝不能把空字符串直接写入设置以清空原值。** 非空字符串才参与应用；不使用 `null`、数字或省略字段表示未知参数。该规则由后续客户端导入逻辑执行，Schema 只能检查结构与类型。
 
 `model` 与 `device_detail_model`、`processor` 与 `device_detail_processor` 分别独立。不能用一个字段的值自动填补另一个字段。Xiaomi 18 Pro 参考预设仅采用已提供的 9 项数据，其余 8 项为空；前后摄分别填写，未提供的相机总览 `camera` 留空。
+
+`metadata.contributor` 和 `metadata.contributor_url` 只存在于正式 `presets/` 文件中。投稿 JSON（包括 `example.json`）必须省略这两个字段；Bot 根据 Issue 作者的 GitHub 用户资料自动获取并写入，投稿者提供这两个字段会被拒绝。当前两个正式预设的贡献者均为 `btm_m`，主页为 `https://github.com/ColdP/`。
 
 ## 参数字段对应关系
 
@@ -52,7 +56,7 @@ JSON 仅使用第一列的存储 Key；Kotlin 字段名只用于说明对应关�
 ## 新增预设
 
 1. 复制 `example.json` 到 `presets/<id>.json`，将 `$schema` 改为 `../schema/preset.schema.json`。
-2. 填写元数据和已确认的参数，保留全部 17 个字段；未知参数使用空字符串，不猜测、不补造。
+2. 填写元数据和已确认的参数，保留全部 17 个字段；未知参数使用空字符串，不猜测、不补造。不要添加 `metadata.contributor` 或 `metadata.contributor_url`。
 3. 在 `index.json` 的 `presets` 数组中加入 `id`、`name`、`description` 和 `file`（如 `presets/xiaomi-18-pro.json`）。前三项与预设元数据一致，`file` 是相对 `index.json` 的路径。不要收录 `example.json`。
 4. 运行本地校验后提交。
 
@@ -79,9 +83,9 @@ python scripts/validate.py
 
 Issue 创建、编辑或重新打开后，Bot 都会读取**当前正文**并使用默认分支上的最新 Schema 和索引检查 JSON、元数据、17 个参数、未知字段、文件名和重复项。失败会回复具体原因并标记 `needs-fix`；成功会回复结果并标记 `validated`。两种结果互斥，`validated` 仅表示格式合格，不代表参数事实已获认可。
 
-维护者人工核实数据后，手动添加 `approved-for-pr`。Bot 会通过 GitHub API 检查**添加此标签者**是否具备仓库 `write`、`maintain` 或 `admin` 权限，比较审批事件与当前正文，重新校验后才创建分支和 PR。投稿者或只有 `triage` 权限的用户不能通过加标签获得创建权限。
+维护者人工核实数据后，手动添加 `approved-for-pr`。Bot 会通过 GitHub API 检查**添加此标签者**是否具备仓库 `write`、`maintain` 或 `admin` 权限，读取 Issue 作者的 GitHub 用户名和主页链接，比较审批事件与当前正文，重新校验后才创建分支和 PR。投稿者或只有 `triage` 权限的用户不能通过加标签获得创建权限。
 
-生成的分支为 `preset-submissions/{id}`。PR 只添加正式预设并追加索引，不修改模板、Schema 或已有预设。原 Issue 收到 PR 链接及 `pr-created` 标签，审批标签随即移除。PR 等待人工审核与合并，Bot 没有自动合并逻辑。
+生成的分支为 `preset-submissions/{id}`。PR 只添加正式预设并追加索引；正式预设的 `metadata.contributor` 和 `metadata.contributor_url` 来自 Issue 作者的 GitHub API 资料，不来自投稿 JSON。Bot 不修改模板、Schema 或已有预设。原 Issue 收到 PR 链接及 `pr-created` 标签，审批标签随即移除。PR 等待人工审核与合并，Bot 没有自动合并逻辑。
 
 ### 编辑、重复投稿与失败恢复
 

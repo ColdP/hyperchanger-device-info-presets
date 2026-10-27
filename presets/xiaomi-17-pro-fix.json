@@ -4,7 +4,9 @@
     "id": "xiaomi-17-pro-fix",
     "name": "Xiaomi 17 Pro",
     "description": "Xiaomi 17 Pro reference device preset.",
-    "schema_version": "1.0"
+    "schema_version": "1.0",
+    "contributor": "btm_m",
+    "contributor_url": "https://github.com/ColdP/"
   },
   "parameters": {
     "model": "Xiaomi 17 Pro",

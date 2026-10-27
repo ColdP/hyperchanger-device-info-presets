@@ -2,6 +2,7 @@
 
 import argparse
 import base64
+import copy
 from dataclasses import dataclass
 import hashlib
 import json
@@ -27,6 +28,7 @@ LABELS = {
     "pr-error": ("b60205", "PR creation failed; see Bot comment and Actions logs"),
 }
 ID_PATTERN = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
+CONTRIBUTOR_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]*")
 RESERVED_IDS = {"example", "con", "prn", "aux", "nul"} | {
     f"{prefix}{number}" for prefix in ("com", "lpt") for number in range(1, 10)
 }
@@ -75,6 +77,12 @@ class Snapshot:
 
 
 def validate_submission(preset, snapshot):
+    """Validate uploader JSON; contributor metadata is added only by the Bot."""
+    metadata = preset.get("metadata") if isinstance(preset, dict) else None
+    if isinstance(metadata, dict) and ({"contributor", "contributor_url"} & set(metadata)):
+        raise SubmissionError(
+            "投稿 JSON 不得包含 metadata.contributor 或 metadata.contributor_url；Bot 会从 Issue 作者的 GitHub 资料自动填写。"
+        )
     Draft202012Validator.check_schema(snapshot.schema)
     errors = []
     try:
@@ -105,16 +113,27 @@ def validate_submission(preset, snapshot):
     return path
 
 
-def proposed_files(preset, snapshot):
+def proposed_files(preset, snapshot, contributor):
     path = validate_submission(preset, snapshot)
+    stored_preset = copy.deepcopy(preset)
+    stored_preset["metadata"].update(contributor)
+    validate_stored_submission(stored_preset, snapshot)
     index = {**snapshot.index, "presets": [*snapshot.index["presets"], {
         **{key: preset["metadata"][key] for key in ("id", "name", "description")},
         "file": path,
     }]}
     return {
-        path: json.dumps(preset, ensure_ascii=False, indent=2) + "\n",
+        path: json.dumps(stored_preset, ensure_ascii=False, indent=2) + "\n",
         "index.json": json.dumps(index, ensure_ascii=False, indent=2) + "\n",
     }
+
+
+def validate_stored_submission(preset, snapshot):
+    """Validate the exact object that will be written to the formal preset tree."""
+    for error in Draft202012Validator(snapshot.schema).iter_errors(preset):
+        location = "/" + "/".join(str(part) for part in error.absolute_path)
+        raise SubmissionError(f"生成的正式预设无效 ({location})：{error.message}")
+    return preset
 
 
 def fingerprint(body):
@@ -190,6 +209,21 @@ class GitHub:
                 except APIError as error:
                     if error.status != 422:  # A concurrent/manual label creation is harmless.
                         raise
+
+    def contributor_for(self, login):
+        user = self.request("GET", "/users/" + quote(login, safe=""))
+        contributor = user.get("login")
+        profile_url = user.get("html_url")
+        if not isinstance(contributor, str) or not CONTRIBUTOR_PATTERN.fullmatch(contributor):
+            raise RuntimeError("GitHub returned an invalid contributor username")
+        if not isinstance(profile_url, str) or not re.fullmatch(
+            r"https://github\.com/[A-Za-z0-9][A-Za-z0-9_-]*/?", profile_url
+        ):
+            raise RuntimeError("GitHub returned an invalid contributor profile URL")
+        return {
+            "contributor": contributor,
+            "contributor_url": profile_url.rstrip("/") + "/",
+        }
 
 
 class Bot:
@@ -293,7 +327,8 @@ class Bot:
         try:
             preset = extract_submission(body)
             snapshot = self.api.snapshot(self.default_branch)
-            files = proposed_files(preset, snapshot)
+            contributor = self.api.contributor_for(issue["user"]["login"])
+            files = proposed_files(preset, snapshot, contributor)
             preset_id = preset["metadata"]["id"]
             branch = f"preset-submissions/{preset_id}"
             marker = f"<!-- preset-submission:{self.number}:{fingerprint(body)} -->"

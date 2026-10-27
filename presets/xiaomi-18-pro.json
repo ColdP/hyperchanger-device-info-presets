@@ -4,7 +4,9 @@
     "id": "xiaomi-18-pro",
     "name": "Xiaomi 18 Pro",
     "description": "Xiaomi 18 Pro reference device preset.",
-    "schema_version": "1.0"
+    "schema_version": "1.0",
+    "contributor": "btm_m",
+    "contributor_url": "https://github.com/ColdP/"
   },
   "parameters": {
     "model": "Xiaomi 18 Pro",

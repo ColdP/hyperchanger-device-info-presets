@@ -34,8 +34,35 @@
           "type": "string",
           "const": "1.0",
           "description": "Version of the preset data format."
+        },
+        "contributor": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+          "description": "GitHub username added by the submission Bot; never supplied by the uploader."
+        },
+        "contributor_url": {
+          "type": "string",
+          "pattern": "^https://github\\.com/[A-Za-z0-9][A-Za-z0-9_-]*/?$",
+          "description": "GitHub profile URL added by the submission Bot; never supplied by the uploader."
         }
-      }
+      },
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "required": ["contributor", "contributor_url"]
+            },
+            {
+              "not": {
+                "anyOf": [
+                  { "required": ["contributor"] },
+                  { "required": ["contributor_url"] }
+                ]
+              }
+            }
+          ]
+        }
+      ]
     },
     "parameters": {
       "type": "object",

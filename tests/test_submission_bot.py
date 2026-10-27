@@ -34,7 +34,8 @@ class FakeGitHub:
 
     def __init__(self, body=None, labels=(), permission="write"):
         self.issue = {"number": 7, "state": "open", "body": body or issue_body(),
-                      "labels": [{"name": label} for label in labels]}
+                      "labels": [{"name": label} for label in labels],
+                      "user": {"login": "maintainer"}}
         self.permission = permission
         self.data = Snapshot.local()
         self.data.base, self.data.tree = "base-sha", "base-tree"
@@ -48,6 +49,9 @@ class FakeGitHub:
     def snapshot(self, default_branch):
         return copy.deepcopy(self.data)
 
+    def contributor_for(self, login):
+        return {"contributor": login, "contributor_url": f"https://github.com/{login}/"}
+
     def optional(self, route):
         if route.startswith("/git/ref/heads/"):
             return self.refs.get(unquote(route.removeprefix("/git/ref/heads/")))
@@ -59,6 +63,8 @@ class FakeGitHub:
             return copy.deepcopy(self.issue)
         if method == "GET" and route.startswith("/collaborators/"):
             return {"permission": self.permission}
+        if method == "GET" and route == "/users/maintainer":
+            return {"login": "maintainer", "html_url": "https://github.com/maintainer"}
         if method == "DELETE" and route.startswith("/issues/7/labels/"):
             label = unquote(route.rsplit("/", 1)[1])
             self.issue["labels"] = [item for item in self.issue["labels"] if item["name"] != label]
@@ -165,6 +171,13 @@ class SubmissionValidationTests(unittest.TestCase):
         with self.assertRaises(SubmissionError):
             validate_submission(preset, self.snapshot)
 
+    def test_contributor_fields_are_bot_only(self):
+        for key, value in (("contributor", "someone"), ("contributor_url", "https://github.com/someone/")):
+            preset = candidate()
+            preset["metadata"][key] = value
+            with self.subTest(key=key), self.assertRaises(SubmissionError):
+                validate_submission(preset, self.snapshot)
+
     def test_unsafe_reserved_duplicate_ids_and_schema_path(self):
         for preset_id in ("../escape", "UPPER", "a/b", "a--b", "a\n", "example", "con", "lpt1", "a" * 241, "xiaomi-18-pro"):
             preset = candidate()
@@ -190,9 +203,18 @@ class SubmissionValidationTests(unittest.TestCase):
         preset = candidate()
         preset["parameters"]["hardware"] = '$(touch /tmp/unsafe); `whoami` ${TOKEN}'
         before = copy.deepcopy(self.snapshot.index)
-        files = proposed_files(preset, self.snapshot)
+        files = proposed_files(
+            preset,
+            self.snapshot,
+            {"contributor": "maintainer", "contributor_url": "https://github.com/maintainer/"},
+        )
         self.assertEqual(set(files), {"presets/submission-test.json", "index.json"})
-        self.assertEqual(json.loads(files["presets/submission-test.json"]), preset)
+        stored = json.loads(files["presets/submission-test.json"])
+        self.assertEqual(stored["metadata"]["contributor"], "maintainer")
+        self.assertEqual(stored["metadata"]["contributor_url"], "https://github.com/maintainer/")
+        stored["metadata"].pop("contributor")
+        stored["metadata"].pop("contributor_url")
+        self.assertEqual(stored, preset)
         index = json.loads(files["index.json"])
         self.assertEqual(index["presets"][:-1], before["presets"])
         self.assertEqual(index["schema_version"], before["schema_version"])
@@ -346,6 +368,27 @@ class BotFlowTests(unittest.TestCase):
 
 
 class SnapshotTests(unittest.TestCase):
+    def test_contributor_profile_is_read_from_github_and_normalized(self):
+        class UserAPI(GitHub):
+            def request(self, method, route, data=None):
+                assert method == "GET"
+                assert route == "/users/ColdP"
+                return {"login": "ColdP", "html_url": "https://github.com/ColdP"}
+
+        api = UserAPI("ColdP/hyperchanger-device-info-presets", "test-token")
+        self.assertEqual(api.contributor_for("ColdP"), {
+            "contributor": "ColdP",
+            "contributor_url": "https://github.com/ColdP/",
+        })
+
+    def test_invalid_contributor_profile_response_is_rejected(self):
+        class UserAPI(GitHub):
+            def request(self, method, route, data=None):
+                return {"login": "bad/user", "html_url": "https://example.com/bad/user"}
+
+        with self.assertRaisesRegex(RuntimeError, "invalid contributor username"):
+            UserAPI("ColdP/hyperchanger-device-info-presets", "test-token").contributor_for("ColdP")
+
     def test_remote_snapshot_uses_current_default_branch_and_blobs(self):
         local = Snapshot.local()
 

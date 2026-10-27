@@ -8,6 +8,7 @@ body:
       value: |
         请先阅读 README.md 和 example.json。请使用已确认的参数，未知参数填空字符串。
         保留全部 17 个 parameters 字段；元数据单独放在 metadata。
+        不要在 metadata 中填写 contributor 或 contributor_url；Bot 会根据 Issue 作者自动生成。
         正式预设的 $schema 必须是 ../schema/preset.schema.json。
         投稿需要登录 GitHub；通过校验并不代表预设已被采纳。
   - type: textarea

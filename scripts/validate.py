@@ -48,6 +48,12 @@ def validate():
             raise ValueError(f"{path} ({location}): {error.message}")
         expected_schema = "../schema/preset.schema.json" if path in preset_paths else "schema/preset.schema.json"
         require(documents[path]["$schema"] == expected_schema, f"{path}: invalid schema path")
+        contributor_keys = {"contributor", "contributor_url"}
+        metadata_keys = set(documents[path]["metadata"])
+        if path in preset_paths:
+            require(contributor_keys <= metadata_keys, f"{path}: formal presets must include contributor metadata")
+        else:
+            require(not (contributor_keys & metadata_keys), "example.json must omit automatically generated contributor metadata")
 
     index = documents["index.json"]
     require(isinstance(index, dict) and set(index) == {"schema_version", "presets"}, "Invalid index fields")
