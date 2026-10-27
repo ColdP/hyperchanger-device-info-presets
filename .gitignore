@@ -1,3 +1,6 @@
 __pycache__/
 *.py[cod]
 .venv/
+
+# Local-only one-click sync helper
+/sync-cloud.ps1
