@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/preset.schema.json",
+  "metadata": {
+    "id": "xiaomi-17-pro-fix",
+    "name": "Xiaomi 17 Pro",
+    "description": "Xiaomi 17 Pro reference device preset.",
+    "schema_version": "1.0"
+  },
+  "parameters": {
+    "model": "Xiaomi 17 Pro",
+    "processor": "第五代骁龙®8至尊版移动平台",
+    "ram": "",
+    "battery": "6300mAh(typ)",
+    "screen_size": "6.3\"",
+    "resolution": "1220x2656",
+    "device_detail_model": "25098PN5AC",
+    "device_detail_processor": "第五代骁龙®8至尊版移动平台 最高 4.6 GHz",
+    "camera": "",
+    "os_version": "",
+    "android_version": "",
+    "storage": "",
+    "kernel": "",
+    "baseband": "",
+    "hardware": "",
+    "camera_rear": "50MP+50MP+50MP",
+    "camera_front": "50MP"
+  }
+}
