@@ -12,7 +12,7 @@
     "ram": "",
     "battery": "7000mAh(typ)",
     "screen_size": "6.4\"",
-    "resolution": "1120 x 2436 超级像素",
+    "resolution": "1120x2436 超级像素",
     "device_detail_model": "M154FF",
     "device_detail_processor": "第六代骁龙®8至尊版移动平台 最高 5.0 GHz",
     "camera": "",
@@ -22,7 +22,7 @@
     "kernel": "",
     "baseband": "",
     "hardware": "",
-    "camera_rear": "200MP + 200MP + 50MP",
+    "camera_rear": "200MP+200MP+50MP",
     "camera_front": "50MP"
   }
 }
