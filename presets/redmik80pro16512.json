@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/preset.schema.json",
+  "metadata": {
+    "id": "redmik80pro16512",
+    "name": "REDMI K80 Pro",
+    "description": "REDMI K80 Pro 16+512版本，未开内存扩展\nby 周-zhou",
+    "schema_version": "1.0",
+    "contributor": "WCNMSSB",
+    "contributor_url": "https://github.com/WCNMSSB/"
+  },
+  "parameters": {
+    "model": "REDMI K80 Pro",
+    "processor": "骁龙8至尊版移动平台",
+    "ram": "16.0GB",
+    "battery": "6000mah (typ)",
+    "screen_size": "6.67''",
+    "resolution": "3200*1440",
+    "device_detail_model": "24122RKC7C",
+    "device_detail_processor": "骁龙8至尊版移动平台\n八核 最高4.32GHz",
+    "camera": "前置20MP后置50+32+50MP",
+    "os_version": "4.0.0.10.XOMCNXM.D01",
+    "android_version": "17 | Android 安全更新：2026年9月1日",
+    "storage": "512GB",
+    "kernel": "6.6.118-android15-8-gb9ccbec16bc8-abogki536571621-4k",
+    "baseband": "MPSS.DE.7.0-CN-8733cf790a",
+    "hardware": "V1",
+    "camera_rear": "后置50+32+50MP",
+    "camera_front": "前置20MP"
+  }
+}
