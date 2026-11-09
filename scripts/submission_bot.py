@@ -157,11 +157,13 @@ class GitHub:
         if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository):
             raise ValueError("Invalid GITHUB_REPOSITORY")
         self.repository = repository
-        self.base_url = api_url.rstrip("/") + "/repos/" + repository
+        self.api_url = api_url.rstrip("/")
+        self.base_url = self.api_url + "/repos/" + repository
         self.token = token
 
     def request(self, method, route, data=None):
-        request = Request(self.base_url + route, method=method, headers={
+        url = (self.api_url + route) if route.startswith("/users/") else (self.base_url + route)
+        request = Request(url, method=method, headers={
             "Authorization": f"Bearer {self.token}",
             "Accept": "application/vnd.github+json",
             "Content-Type": "application/json",
