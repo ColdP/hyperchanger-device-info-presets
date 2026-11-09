@@ -12,6 +12,12 @@
       "name": "Xiaomi 17 Pro",
       "description": "Xiaomi 17 Pro reference device preset.",
       "file": "presets/xiaomi-17-pro-fix.json"
+    },
+    {
+      "id": "redmik80pro16512",
+      "name": "REDMI K80 Pro",
+      "description": "REDMI K80 Pro 16+512版本，未开内存扩展\nby 周-zhou",
+      "file": "presets/redmik80pro16512.json"
     }
   ]
 }
